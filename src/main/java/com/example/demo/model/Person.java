@@ -1,13 +1,19 @@
 package com.example.demo.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data               // Generates getters, setters, toString, equals, and hashCode
-@NoArgsConstructor  // No-args constructor
-@AllArgsConstructor // All-args constructor
+@Data @NoArgsConstructor @AllArgsConstructor
+@Document(collection = "people")
 public class Person {
+    @Id
+    private String id;        // Mongo _id
     private String firstName;
     private String lastName;
+
+    public Person(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

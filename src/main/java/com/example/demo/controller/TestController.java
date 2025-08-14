@@ -1,8 +1,14 @@
 package com.example.demo.controller;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.model.Person;
 import com.example.demo.service.RandomGenerator;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class TestController {
@@ -16,4 +22,22 @@ public class TestController {
         return "Hello World and I generated this random UUID: " + randomUUID;
     }
 
+    @PostMapping("/addPerson")
+    public String addPerson(@RequestBody Person person) {
+        // Connect to MongoDB (default local connection, no auth)
+        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
+            MongoDatabase database = mongoClient.getDatabase("demo");
+            MongoCollection<Document> collection = database.getCollection("people");
+
+            // Convert Person to a Document
+            Document doc = new Document()
+                    .append("firstName", person.getFirstName())
+                    .append("lastName", person.getLastName());
+
+            // Insert into collection
+            collection.insertOne(doc);
+
+            return "Inserted person: " + person.getFirstName() + " " + person.getLastName();
+        }
+    }
 }
