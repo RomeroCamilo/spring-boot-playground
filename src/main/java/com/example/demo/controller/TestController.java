@@ -2,13 +2,13 @@ package com.example.demo.controller;
 
 import com.example.demo.model.Person;
 import com.example.demo.service.RandomGenerator;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 public class TestController {
@@ -40,4 +40,26 @@ public class TestController {
             return "Inserted person: " + person.getFirstName() + " " + person.getLastName();
         }
     }
+
+    @GetMapping("/people")
+    public List<Person> getPeople() {
+        List<Person> peopleList = new ArrayList<>();
+
+        try (MongoClient mongoClient = MongoClients.create("mongodb://localhost:27017")) {
+            MongoDatabase database = mongoClient.getDatabase("demo");
+            MongoCollection<Document> collection = database.getCollection("people");
+
+            FindIterable<Document> documents = collection.find();
+
+            for (Document doc : documents) {
+                String firstName = doc.getString("firstName");
+                String lastName = doc.getString("lastName");
+                peopleList.add(new Person(firstName, lastName));
+            }
+        }
+
+        return peopleList;
+    }
+
+
 }
